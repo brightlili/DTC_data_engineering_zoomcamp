@@ -14,7 +14,7 @@ This repo contains my weekly labs, notes, Terraform infrastructure, Python scrip
 
 | ✅ Week | 🔍 Topic | ⏱ Status | 🔗 Link |
 |--------|---------|-----------|--------|
-| 1️⃣ Week 1 | GCP Setup, IAM, CLI | ✅ Completed | [Week 1](./01_tools_resorces_setup/README.md) |
+| 1️⃣ Week 1 | Intro (Docker, Terraform, GCP Setup, IAM, CLI) | ✅ Completed | [Week 1](./01_tools_resorces_setup/README.md) |
 | 2️⃣ Week 2 | Data Ingestion (GCS, BigQuery) | ✅ Completed | [Week 2](./02_terraform_docker/README.md) |
 | 3️⃣ Week 3 | Data Warehouse (BigQuery, dbt) | ⏳ In Progress | [Week 3](./03_workflow_ochestration/README.md) |
 | 4️⃣ Week 4 | Batch Processing with Spark | ⏭️ Upcoming | |
