@@ -1,92 +1,60 @@
-folder Structure
 
-2_docker_sql/
-├── README.md                         # Documentation for this week's module
-├── docker-compose.yml               # Multi-container setup (if used)
-├── Dockerfile                       # Custom Postgres image (optional)
-├── ingest_data.py                   # Python script to load CSV into Postgres
-├── load_data.ipynb                  # Optional Jupyter notebook
-├── yellow_tripdata_2021-01.csv      # Sample dataset (or script to download it)
-├── taxi_zone_lookup.csv             # Lookup table
-├── sql_queries.sql                  # Practice SQL scripts
-├── screenshots/                     # Folder to store command-line or UI screenshots
-├── notes/
-│   ├── docker_commands.md           # Docker basics and CLI references
-│   └── sql_tips.md                  # Postgres queries, joins, etc.
+# 🐳 Docker + PostgreSQL: NYC Yellow Taxi Data
+
+This module demonstrates how to set up a **PostgreSQL database using Docker**, ingest **NYC Yellow Taxi trip data**, and run SQL transformations and queries.
+
+> Based on [DataTalksClub's Data Engineering Zoomcamp](https://github.com/DataTalksClub/data-engineering-zoomcamp)
+
+---
+
+## 📁 Folder Contents
+
+- `docker-compose.yaml` — define and run multi-container Docker apps
+- `ingest_data.py` — Python script to load CSV into PostgreSQL
+- `Dockerfile` — Docker image for ingestion script
+- `ny_taxi_postgres_data/` — PostgreSQL volume
+- `screenshots/` — CLI/pgAdmin screenshots (optional)
+
+---
+
+## 🚀 Getting Started
+
+### 📦 Download Dataset
+
+```bash
+wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz
 
 
 
 ⸻
 
-📝 Sample README.md for 2_docker_sql/
+🐘 Running PostgreSQL in Docker
 
-# 🐳 2 – Docker + PostgreSQL (Data Engineering Zoomcamp)
-
-This module demonstrates how to use Docker to spin up a PostgreSQL database, load real-world datasets, and query them using SQL – a fundamental skill for any data engineer.
-
----
-
-## 📦 Key Concepts
-
-- Running PostgreSQL in a Docker container
-- Writing SQL to explore datasets
-- Automating data ingestion using Python + SQLAlchemy
-- Volume mounting and Docker networking
-- Querying and exploring relational data
-
----
-
-## 🚀 Technologies Used
-
-| Tool         | Purpose                          |
-|--------------|----------------------------------|
-| Docker       | Run Postgres DB in a container   |
-| PostgreSQL   | Relational database              |
-| SQLAlchemy   | Python ORM for Postgres          |
-| Pandas       | Read and transform CSVs          |
-| pgAdmin (opt)| Visual DB interface              |
-
----
-
-## 🧱 Project Structure
-
-2_docker_sql/
-
-├── ingest_data.py         # Python to load CSV into Postgres
-
-├── docker-compose.yml     # Spins up Postgres container
-
-├── yellow_tripdata.csv    # Sample trip data
-
-├── README.md              # You’re here
-
----
-
-## 🔧 Setup Instructions
-
-### 1. Clone this repo
-```bash
-git clone https://github.com/brightlili/DTC_data_engineering_zoomcamp.git
-cd DTC_data_engineering_zoomcamp/01_docker_terraform/02_docker_sql
-
-2. Run PostgreSQL in Docker
+📥 Basic Container
 
 docker run -it \
   -e POSTGRES_USER=root \
   -e POSTGRES_PASSWORD=root \
   -e POSTGRES_DB=ny_taxi \
+  -v $(pwd)/ny_taxi_postgres_data:/var/lib/postgresql/data \
   -p 5432:5432 \
   postgres:13
 
-Or with Docker Compose:
-
-docker-compose up
-
-
+	💡 Tip: use docker-compose for convenience and networking.
 
 ⸻
 
-📥 Load the Data
+🧪 Connecting to PostgreSQL
+
+🔧 With pgcli
+
+pgcli -h localhost -p 5432 -u root -d ny_taxi
+
+	pgcli is an interactive Postgres CLI with auto-completion.
+
+⸻
+
+🛠️ Ingesting Data via Python
 
 python ingest_data.py \
   --user=root \
@@ -94,33 +62,63 @@ python ingest_data.py \
   --host=localhost \
   --port=5432 \
   --db=ny_taxi \
-  --table_name=yellow_taxi_data \
-  --csv_file=yellow_tripdata_2021-01.csv
+  --table_name=yellow_taxi_trips \
+  --url=https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz
 
 
 
 ⸻
 
-🔍 Sample SQL Queries
+🐳 Build Docker Image for Ingestion
 
-SELECT COUNT(*) FROM yellow_taxi_data;
+docker build -t taxi_ingest:v001 .
 
-SELECT passenger_count, AVG(total_amount)
-FROM yellow_taxi_data
-GROUP BY passenger_count
-ORDER BY AVG(total_amount) DESC;
+🚚 Run the Docker Ingest Job
+
+docker run -it \
+  --network=pg-network \
+  taxi_ingest:v001 \
+    --user=root \
+    --password=root \
+    --host=pg-database \
+    --port=5432 \
+    --db=ny_taxi \
+    --table_name=yellow_taxi_trips \
+    --url=<dataset_url>
 
 
 
 ⸻
 
-📸 Screenshots
+🖥️ pgAdmin (Optional GUI)
 
-📂 Stored in screenshots/
-Includes Docker setup, SQL queries, and schema previews.
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL=admin@admin.com \
+  -e PGADMIN_DEFAULT_PASSWORD=root \
+  -p 8080:80 \
+  --network=pg-network \
+  dpage/pgadmin4
+
+Access GUI at: http://localhost:8080
 
 ⸻
 
-🧠 Notes & Tips
-	•	See notes/docker_commands.md for quick Docker references
-	•	See notes/sql_tips.md for useful SQL syntax & tricks
+🧠 SQL Sample Query
+
+SELECT
+  tpep_pickup_datetime,
+  tpep_dropoff_datetime,
+  passenger_count,
+  total_amount
+FROM yellow_taxi_trips
+LIMIT 10;
+
+
+
+⸻
+
+📚 References
+	•	NYC Taxi Data Dictionary
+	•	Original Source: Zoomcamp Notes
+
+⸻
