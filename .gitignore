@@ -1,3 +1,4 @@
 # Ignore keys folder and any sensitive JSONs
 keys/
 *.json
+*.csv

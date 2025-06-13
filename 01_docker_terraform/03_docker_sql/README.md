@@ -28,7 +28,7 @@ wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yell
 
 ⸻
 
-🐘 Running PostgreSQL in Docker
+🐘 Running PostgreSQL in Dockergit
 
 📥 Basic Container
 
